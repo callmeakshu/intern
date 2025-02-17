@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AK Shala Internship</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('sun.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            text-align: center;
+            width: 300px;
+            border-radius: 10px;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .hidden {
+            display: none;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: transparent;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 90%;
+            padding: 10px;
+            background: #4facfe;
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #00c6fb;
+        }
+        .pdf-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            text-align: left;
+        }
+        .pdf-container a {
+            display: block;
+            margin: 5px 0;
+            color: #4facfe;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .checkbox-container {  
+            margin-top: 10px;
+            text-align: left;
+            width: 100%; /* Full width */
+        }
+        .checkbox-container label {
+            margin-left: 1px; /* To create some space between the checkbox and text */
+        }
+        .checkbox-container p {
+            margin-top: 10px; /* Adds some space between the checkbox and the message */
+            font-size: 14px;
+            color: #555;
+        }
+        .certificate-image {
+            display: none; /* Initially hidden */
+            margin-top: 20px;
+            max-width: 100%;
+            border-radius: 10px;
+        }
+        #payment-text {
+            display: none; /* Initially hidden */
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+        #message {
+            color: red;
+            font-size: 18px;
+            margin-top: 10px;
+            display: none;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="login-container">
+        <h2>Login</h2>
+        <form id="login-form">
+            <input type="text" id="login-name" placeholder="Name" required>
+            <input type="password" id="login-password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <p>New user? <a href="#" id="show-register">Click here to sign up</a></p>
+        <p id="login-message" style="color: red;"></p>
+    </div>
+
+    <div class="container hidden" id="register-container">
+        <h2>Register</h2>
+        <form id="register-form">
+            <input type="text" id="register-name" placeholder="Name" required>
+            <input type="password" id="register-password" placeholder="Password" required>
+            <button type="submit">Sign Up</button>
+        </form>
+        <p>Already registered? <a href="#" id="show-login">Go to Login</a></p>
+    </div>
+
+    <div class="container hidden" id="pdf-container">
+        <h2>Available PDFs</h2>
+        <div id="pdf-list" class="pdf-container">
+            <!-- PDF links will be added here dynamically -->
+        </div>
+        <div class="checkbox-container">
+           <input type="checkbox" id="read-checkbox">   
+           <p>I have read all the above notes and I am eligible for a certificate.</p>
+        </div>
+        <button onclick="download()">Download certificate</button>
+
+        <!-- Payment text -->
+        <div id="payment-text" class="hidden" style="margin-top: 20px; font-size: 18px; color: #333;">
+            <p>PAY ₹10 AND I WILL SEND YOUR CERTIFICATE TO YOUR WHATSAAP</p>
+        </div>
+
+        <!-- Certificate Image -->
+        <center><img id="certificate-image" class="certificate-image" src="pay.jpg" alt="Certificate Image"></center>
+
+        <!-- Message when checkbox is not checked -->
+        <div id="message" class="hidden">
+            <p>Please check the box to confirm that you are eligible for the certificate.</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("show-register").addEventListener("click", function() {
+            document.getElementById("login-container").classList.add("hidden");
+            document.getElementById("register-container").classList.remove("hidden");
+        });
+
+        document.getElementById("show-login").addEventListener("click", function() {
+            document.getElementById("register-container").classList.add("hidden");
+            document.getElementById("login-container").classList.remove("hidden");
+        });
+
+        // Load users from localStorage, if available
+        let users = JSON.parse(localStorage.getItem('users')) || {};
+
+        let pdfFiles = [
+            { name: "C programs", url: "pdfs/c_codes.pdf" },
+            { name: "Java programs", url: "pdfs/java_codes.pdf" },
+            { name: "Python programs", url: "pdfs/python_codes.pdf" },
+            { name: "Java notes", url: "pdfs/java_notes.pdf" },
+            { name: "Python notes", url: "pdfs/python_notes.pdf" },
+            { name: "HTML notes", url: "pdfs/html_notes.pdf" }
+        ];
+
+        document.getElementById("register-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let name = document.getElementById("register-name").value;
+            let password = document.getElementById("register-password").value;
+            
+            // Save user credentials to localStorage
+            users[name] = password;
+            localStorage.setItem('users', JSON.stringify(users)); // Save to localStorage
+            
+            alert("Registration successful! Please login.");
+            document.getElementById("register-container").classList.add("hidden");
+            document.getElementById("login-container").classList.remove("hidden");
+        });
+
+        document.getElementById("login-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            let name = document.getElementById("login-name").value;
+            let password = document.getElementById("login-password").value;
+            
+            if (users[name] && users[name] === password) {
+                alert("Login successful!");
+                document.getElementById("login-container").classList.add("hidden");
+                document.getElementById("pdf-container").classList.remove("hidden");
+                loadPDFs();
+            } else {
+                document.getElementById("login-message").innerText = "Invalid username or password";
+            }
+        });
+
+        function loadPDFs() {
+            let pdfListDiv = document.getElementById("pdf-list");
+            pdfListDiv.innerHTML = "";
+            pdfFiles.forEach(pdf => {
+                let link = document.createElement("a");
+                link.href = pdf.url;
+                link.target = "_blank";
+                link.innerText = pdf.name;
+                pdfListDiv.appendChild(link);
+            });
+        }
+
+        function download() {
+            // Check if checkbox is selected
+            let checkbox = document.getElementById("read-checkbox");
+            let message = document.getElementById("message");
+            let paymentText = document.getElementById("payment-text");
+            let certificateImage = document.getElementById("certificate-image");
+
+            if (checkbox.checked) {
+                // Show the payment text and certificate image
+                paymentText.style.display = "block";  // Show the payment text
+                certificateImage.style.display = "block";  // Show the certificate image
+                message.style.display = "none";  // Hide the message
+            } else {
+                // Show the message and prevent downloading
+                message.style.display = "block";  // Show the message
+                paymentText.style.display = "none";  // Hide the payment text
+                certificateImage.style.display = "none";  // Hide the certificate image
+            }
+        }
+    </script>
+</body>
+</html>
